@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '../../prisma/__generated__'
+import { hash } from 'argon2'
 
 @Injectable()
 export class UserService {
@@ -32,13 +33,25 @@ export class UserService {
   }
 
   public async create(data: Prisma.UserCreateInput) {
+    const hashedPassword = await this.hashPassword(data.password)
+
     return await this.prisma.user.create({
-      data,
+      data: {
+        ...data,
+        password: hashedPassword,
+      },
       select: {
         email: true,
         displayName: true,
         picture: true,
       },
     })
+  }
+
+  private async hashPassword(password: string): Promise<string | null> {
+    if (!password) {
+      return null
+    }
+    return await hash(password)
   }
 }
