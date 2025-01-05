@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import cookieParser from 'cookie-parser'
 import { ValidationPipe } from '@nestjs/common'
-import IORredis from 'ioredis'
+import IORedis from 'ioredis'
 import session from 'express-session'
 import { ms, StringValue } from './libs/common/utils/ms.util'
 import { parseBoolean } from './libs/common/utils/parse-boolean.util'
@@ -12,7 +12,7 @@ import { RedisStore } from 'connect-redis'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const config = app.get(ConfigService)
-  const redis = new IORredis(config.getOrThrow<string>('REDIS_URI'))
+  const redis = new IORedis(config.getOrThrow<string>('REDIS_URI'))
 
   app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')))
 
