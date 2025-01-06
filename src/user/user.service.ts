@@ -25,10 +25,6 @@ export class UserService {
       include: { accounts: true },
     })
 
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-
     return user
   }
 
@@ -41,9 +37,7 @@ export class UserService {
         password: hashedPassword,
       },
       select: {
-        email: true,
-        displayName: true,
-        picture: true,
+        id: true,
       },
     })
   }
