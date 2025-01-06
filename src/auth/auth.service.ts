@@ -1,17 +1,25 @@
+import { ConfigService } from '@nestjs/config'
 import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { RegisterDto } from './dto/register.dto'
 import { UserService } from '../user/user.service'
 import { AuthMethod } from '../../prisma/__generated__'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { User } from './types/auth.types'
+import { LoginDto } from './dto/login.dto'
+import { verify } from 'argon2'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly configService: ConfigService,
+  ) {}
   public async register(req: Request, registerDto: RegisterDto) {
     const isExsist = await this.userService.findByEmail(registerDto.email)
     if (isExsist) {
@@ -30,9 +38,33 @@ export class AuthService {
     return this.saveSession(req, newUser)
   }
 
-  public async login() {}
+  public async login(req: Request, loginDto: LoginDto) {
+    const user = await this.userService.findByEmail(loginDto.email)
+    if (!user || !user.password) {
+      throw new NotFoundException('User not found')
+    }
 
-  public async logout() {}
+    const isValidPassword = await verify(user.password, loginDto.password)
+    if (!isValidPassword) {
+      throw new UnauthorizedException('Invalid password')
+    }
+
+    return this.saveSession(req, user)
+  }
+
+  public async logout(req: Request, res: Response): Promise<void> {
+    return new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) {
+          return reject(
+            new InternalServerErrorException('Session destroy error'),
+          )
+        }
+        res.clearCookie(this.configService.getOrThrow('SESSION_NAME'))
+        resolve()
+      })
+    })
+  }
 
   private async saveSession(req: Request, user: User) {
     return new Promise((resolve, reject) => {
