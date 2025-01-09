@@ -18,8 +18,13 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "importsNotUsedAsValues": "remove",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true, 
+    "rootDir": "./src", 
+    "allowJs": true
+  
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts", "src/**/*.tsx", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }

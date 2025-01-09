@@ -15,15 +15,18 @@ import { LoginDto } from './dto/login.dto'
 import { verify } from 'argon2'
 import { ProviderService } from './provider/provider.service'
 import { PrismaService } from '../prisma/prisma.service'
+import { EmailConfirmationService } from './email-confirmation/email-confirmation.service'
 
 @Injectable()
 export class AuthService {
-  constructor(
+  public constructor(
+    private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly providerService: ProviderService,
-    private readonly prisma: PrismaService,
+    private readonly emailConfirmationService: EmailConfirmationService,
   ) {}
+
   public async register(req: Request, registerDto: RegisterDto) {
     const isExsist = await this.userService.findByEmail(registerDto.email)
     if (isExsist) {
@@ -39,7 +42,10 @@ export class AuthService {
       ...data,
       method: AuthMethod.CREDENTIAL,
     })
-    return this.saveSession(req, newUser)
+    // this.saveSession(req, newUser)
+    await this.emailConfirmationService.sendVerificationToken(newUser.id)
+
+    return { message: 'Successful registration. Please confirm your email.' }
   }
 
   public async login(req: Request, loginDto: LoginDto) {
@@ -51,6 +57,11 @@ export class AuthService {
     const isValidPassword = await verify(user.password, loginDto.password)
     if (!isValidPassword) {
       throw new UnauthorizedException('Invalid password')
+    }
+
+    if (!user.isVerifed) {
+      await this.emailConfirmationService.sendVerificationToken(user.id)
+      throw new UnauthorizedException('Please confirm your email.')
     }
 
     return this.saveSession(req, user)
@@ -116,7 +127,7 @@ export class AuthService {
     })
   }
 
-  private async saveSession(req: Request, user: User) {
+  public async saveSession(req: Request, user: User) {
     return new Promise((resolve, reject) => {
       req.session.userId = user.id
       req.session.save((err) => {
