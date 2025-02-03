@@ -33,7 +33,8 @@ export class EmailConfirmationService {
       throw new NotFoundException('Token not found')
     }
 
-    const hasExpired = new Date(exsistedToken.expiresIn)
+    const hasExpired = new Date(exsistedToken.expiresIn) < new Date()
+
     if (hasExpired) {
       throw new BadRequestException('Token expired')
     }
@@ -74,7 +75,7 @@ export class EmailConfirmationService {
 
   private async generateVerificationToken(userId: string) {
     const token = v4()
-    const expiresIn = new Date(new Date().getTime() * 60 * 60 * 1000)
+    const expiresIn = new Date(new Date().getTime() + 60 * 60 * 1000)
     const user = await this.userService.findById(userId)
 
     const exsistedToken = await this.prisma.token.findFirst({

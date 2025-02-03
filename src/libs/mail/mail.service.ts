@@ -12,13 +12,18 @@ export class MailService {
   ) {}
 
   private sendEmail(email: string, subject: string, html: string) {
-    return this.mailService.sendMail({ to: email, subject, html })
+    return this.mailService.sendMail({
+      from: this.configService.getOrThrow<string>('MAIL_FROM'),
+      to: email,
+      subject,
+      html,
+    })
   }
 
   public async sendConfiramtionEmail(email: string, token: string) {
     const domain = this.configService.getOrThrow<string>('ALLOWED_ORIGIN')
-    // const html = await render(ConfirmationTemplate({ domain, token }))
+    const html = await render(ConfirmationTemplate({ domain, token }))
 
-    // return this.sendEmail(email, 'Confirm email', html)
+    return this.sendEmail(email, 'Confirm email', html)
   }
 }
