@@ -25,21 +25,21 @@ export class EmailConfirmationService {
   ) {}
 
   public async newVerification(request: Request, data: ConfirmationDto) {
-    const exsistedToken = await this.prisma.token.findUnique({
+    const existingToken = await this.prisma.token.findUnique({
       where: { token: data.token, type: TokenType.VERIFICATION },
     })
 
-    if (!exsistedToken) {
+    if (!existingToken) {
       throw new NotFoundException('Token not found')
     }
 
-    const hasExpired = new Date(exsistedToken.expiresIn) < new Date()
+    const hasExpired = new Date(existingToken.expiresIn) < new Date()
 
     if (hasExpired) {
       throw new BadRequestException('Token expired')
     }
 
-    const exsitingUser = await this.userService.findByEmail(exsistedToken.email)
+    const exsitingUser = await this.userService.findByEmail(existingToken.email)
 
     if (!exsitingUser) {
       throw new NotFoundException('User with this email not found')
@@ -54,8 +54,7 @@ export class EmailConfirmationService {
 
     await this.prisma.token.delete({
       where: {
-        id: exsistedToken.id,
-        type: TokenType.VERIFICATION,
+        id: existingToken.id,
       },
     })
 
@@ -78,13 +77,15 @@ export class EmailConfirmationService {
     const expiresIn = new Date(new Date().getTime() + 60 * 60 * 1000)
     const user = await this.userService.findById(userId)
 
-    const exsistedToken = await this.prisma.token.findFirst({
+    const existingToken = await this.prisma.token.findFirst({
       where: { email: user.email, type: TokenType.VERIFICATION },
     })
 
-    if (exsistedToken) {
+    if (existingToken) {
       await this.prisma.token.delete({
-        where: { id: exsistedToken.id, token: TokenType.VERIFICATION },
+        where: {
+          id: existingToken.id,
+        },
       })
     }
 

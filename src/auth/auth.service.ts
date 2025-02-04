@@ -28,8 +28,8 @@ export class AuthService {
   ) {}
 
   public async register(req: Request, registerDto: RegisterDto) {
-    const isExsist = await this.userService.findByEmail(registerDto.email)
-    if (isExsist) {
+    const isExist = await this.userService.findByEmail(registerDto.email)
+    if (isExist) {
       throw new ConflictException('Email already exists')
     }
 
@@ -79,12 +79,12 @@ export class AuthService {
       where: { id: profile.id, provider: provider },
     })
 
-    const exsistedUser = account?.userId
+    const existingUser = account?.userId
       ? await this.userService.findById(account.userId)
       : null
 
-    if (exsistedUser) {
-      return this.saveSession(request, exsistedUser)
+    if (existingUser) {
+      return this.saveSession(request, existingUser)
     }
 
     const newUser = await this.userService.create({
