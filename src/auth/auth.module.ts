@@ -8,6 +8,9 @@ import { ProviderModule } from './provider/provider.module'
 import { getProvidersConfig } from '../config/providers.config'
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module'
 import { UserModule } from '../user/user.module'
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
+import { TwoFactorAuthModule } from './two-factor-auth/two-factor-auth.module'
+import { MailModule } from '../libs/mail/mail.module'
 
 @Module({
   imports: [
@@ -23,9 +26,11 @@ import { UserModule } from '../user/user.module'
     }),
     UserModule,
     EmailConfirmationModule,
+    TwoFactorAuthModule,
+    MailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, TwoFactorAuthService],
   exports: [AuthService],
 })
 export class AuthModule {}
