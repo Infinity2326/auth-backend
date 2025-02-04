@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '../../prisma/__generated__'
 import { hash } from 'argon2'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UserService {
@@ -48,5 +49,21 @@ export class UserService {
       return null
     }
     return await hash(password)
+  }
+
+  public async update(userId: string, data: UpdateUserDto) {
+    const user = await this.findById(userId)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        email: data.email,
+        displayName: data.name,
+        isTwoFactorEnabled: data.isTwoFactorEnabled,
+      },
+    })
   }
 }
