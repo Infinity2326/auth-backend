@@ -29,7 +29,7 @@ export class AuthService {
     private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
-  public async register(req: Request, registerDto: RegisterDto) {
+  public async register(registerDto: RegisterDto) {
     const isExist = await this.userService.findByEmail(registerDto.email)
     if (isExist) {
       throw new ConflictException('Email already exists')
@@ -108,7 +108,7 @@ export class AuthService {
       id: profile.id,
       email: profile.email,
       password: '',
-      displayName: profile.name,
+      displayName: profile.displayName,
       picture: profile.picture,
       method: AuthMethod[profile.provider.toUpperCase()],
       isVerifed: true,

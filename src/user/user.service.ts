@@ -52,6 +52,7 @@ export class UserService {
   }
 
   public async update(userId: string, data: UpdateUserDto) {
+    console.log(userId)
     const user = await this.findById(userId)
     if (!user) {
       throw new NotFoundException('User not found')
@@ -61,7 +62,7 @@ export class UserService {
       where: { id: user.id },
       data: {
         email: data.email,
-        displayName: data.name,
+        displayName: data.displayName,
         isTwoFactorEnabled: data.isTwoFactorEnabled,
       },
     })

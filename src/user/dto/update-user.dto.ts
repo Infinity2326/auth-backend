@@ -3,7 +3,7 @@ import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator'
 export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
-  name: string
+  displayName: string
 
   @IsString()
   @IsEmail()

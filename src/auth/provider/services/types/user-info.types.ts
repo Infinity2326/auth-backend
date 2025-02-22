@@ -1,7 +1,7 @@
 export type UserInfo = {
   id: string
   picture: string
-  name: string
+  displayName: string
   email: string
   access_token?: string | null
   refresh_token?: string | null
