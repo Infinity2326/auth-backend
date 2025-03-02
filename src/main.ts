@@ -8,6 +8,7 @@ import session from 'express-session'
 import { ms, StringValue } from './libs/common/utils/ms.util'
 import { parseBoolean } from './libs/common/utils/parse-boolean.util'
 import { RedisStore } from 'connect-redis'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -42,6 +43,17 @@ async function bootstrap() {
     origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
     credentials: true,
     exposedHeaders: ['Set-Cookie'],
+  })
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Budged guard API')
+    .build()
+
+  const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig)
+
+  SwaggerModule.setup('swagger', app, documentFactory)
+  SwaggerModule.setup('swagger', app, documentFactory, {
+    jsonDocumentUrl: 'swagger/json',
   })
 
   await app.listen(config.getOrThrow<number>('APPLICATION_PORT') ?? 3000)

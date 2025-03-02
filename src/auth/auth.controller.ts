@@ -44,7 +44,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthProviderGuard)
-  @Get('/oauth/callback/:provider')
+  @Get('oauth/callback/:provider')
   @HttpCode(HttpStatus.OK)
   public async callback(
     @Req() request: Request,
@@ -64,7 +64,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthProviderGuard)
-  @Get('/oauth/connect/:provider')
+  @Get('oauth/connect/:provider')
   @HttpCode(HttpStatus.OK)
   public async connect(@Param('provider') provider: string) {
     const providerInstance = this.providerService.findByService(provider)

@@ -48,7 +48,6 @@ export class BaseOAuthService {
     const tokens = await tokenRequest.json()
 
     if (!tokens.access_token) {
-      console.log(tokens)
       throw new BadRequestException('Access token not found')
     }
 
